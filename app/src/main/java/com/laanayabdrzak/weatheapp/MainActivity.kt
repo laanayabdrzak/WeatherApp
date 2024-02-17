@@ -58,7 +58,7 @@ class MainActivity : AppCompatActivity(), CoroutineScope by MainScope() {
         swipeRefreshLayout.setOnRefreshListener {
             launch {
                 try {
-                    val weatherData = weatherRepository.getWeatherData()
+                    val weatherData = retrieveWeatherDataFromDatabase() ?: weatherRepository.getWeatherData()
                     displayWeatherData(weatherData)
                 } catch (e: Exception) {
                     showErrorView()
@@ -69,8 +69,32 @@ class MainActivity : AppCompatActivity(), CoroutineScope by MainScope() {
         }
     }
 
-    private fun retrieveWeatherDataFromDatabase(): WeatherData? {
-        return null
+    private suspend fun retrieveWeatherDataFromDatabase(): WeatherData? {
+        val weatherEntities = weatherDao.getWeatherData()
+        return if (weatherEntities.isNotEmpty()) {
+            val weatherDataDetails = WeatherData.WeatherDataDetails(
+                timelines = listOf(
+                    WeatherData.WeatherDataDetails.Timeline(
+                        timestep = "1h",
+                        startTime = "",  // Set a suitable startTime here
+                        endTime = "",
+                        intervals = weatherEntities.map {
+                            WeatherData.WeatherDataDetails.Timeline.Interval(
+                                startTime = "",
+                                values = WeatherData.WeatherDataDetails.Timeline.Interval.WeatherValues(
+                                    temperature = it.temperature,
+                                    temperatureApparent = it.temperatureApparent,
+                                    windSpeed = it.windSpeed
+                                )
+                            )
+                        }
+                    )
+                )
+            )
+            WeatherData(data = weatherDataDetails, warnings = emptyList())
+        } else {
+            null
+        }
     }
 
 
