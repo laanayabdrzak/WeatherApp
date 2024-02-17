@@ -12,5 +12,5 @@ object RetrofitClient {
         .addConverterFactory(GsonConverterFactory.create())
         .build()
 
-    val weatherApiService: ApiInterface = retrofit.create(ApiInterface::class.java)
+    var weatherApiService: ApiInterface = retrofit.create(ApiInterface::class.java)
 }
