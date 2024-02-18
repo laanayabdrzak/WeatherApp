@@ -38,10 +38,7 @@ class MainActivity : AppCompatActivity(), CoroutineScope by MainScope() {
         swipeRefreshLayout = binding.swipeRefreshLayout
         errorTextView = binding.errorTextView
 
-        weatherDao = Room.databaseBuilder(applicationContext, WeatherDatabase::class.java, "weather_database")
-            .build()
-            .weatherDao()
-
+        initDatabase()
         setupSwipeRefreshLayout()
 
         launch {
@@ -52,6 +49,12 @@ class MainActivity : AppCompatActivity(), CoroutineScope by MainScope() {
                 handleException(e)
             }
         }
+    }
+
+    private fun initDatabase() {
+        weatherDao = Room.databaseBuilder(applicationContext, WeatherDatabase::class.java, "weather_database")
+            .build()
+            .weatherDao()
     }
 
     private fun setupSwipeRefreshLayout() {
