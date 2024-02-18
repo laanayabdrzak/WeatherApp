@@ -49,7 +49,7 @@ class MainActivity : AppCompatActivity(), CoroutineScope by MainScope() {
                 val weatherData = retrieveWeatherDataFromDatabase() ?: weatherRepository.getWeatherData()
                 displayWeatherData(weatherData)
             } catch (e: Exception) {
-                showErrorView()
+                handleException(e)
             }
         }
     }
@@ -61,7 +61,7 @@ class MainActivity : AppCompatActivity(), CoroutineScope by MainScope() {
                     val weatherData = retrieveWeatherDataFromDatabase() ?: weatherRepository.getWeatherData()
                     displayWeatherData(weatherData)
                 } catch (e: Exception) {
-                    showErrorView()
+                    handleException(e)
                 } finally {
                     swipeRefreshLayout.isRefreshing = false
                 }
@@ -123,7 +123,7 @@ class MainActivity : AppCompatActivity(), CoroutineScope by MainScope() {
             .find { it.timestep == "1h" }
             ?.intervals
 
-        if (data != null && data.isNotEmpty()) {
+        if (!data.isNullOrEmpty()) {
             val adapter = ArrayAdapter(this, android.R.layout.simple_list_item_1, data.map { interval ->
                 "Température: ${interval.values.temperature}\n" +
                         "Température apparent: ${interval.values.temperatureApparent}\n" +
@@ -135,6 +135,13 @@ class MainActivity : AppCompatActivity(), CoroutineScope by MainScope() {
         } else {
             showErrorView()
         }
+    }
+
+    private fun handleException(e: Exception) {
+        // Handle different types of exceptions here
+        showErrorView()
+        // You can log the exception or show a more specific error message based on the exception type.
+        // For example, you can check if the exception is a network-related exception and show a specific error message.
     }
 
     private fun showErrorView() {
