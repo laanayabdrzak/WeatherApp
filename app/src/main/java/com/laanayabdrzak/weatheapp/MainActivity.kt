@@ -40,20 +40,26 @@ class MainActivity : AppCompatActivity(), CoroutineScope by MainScope() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
+        // Initialize ViewBinding
         binding = ActivityMainBinding.inflate(layoutInflater)
         val view = binding.root
         setContentView(view)
 
+        // Initialize UI components
         listView = binding.listView
         swipeRefreshLayout = binding.swipeRefreshLayout
         errorTextView = binding.errorTextView
 
+        // Initialize the local database
         initDatabase()
+        // Setup SwipeRefreshLayout behavior
         setupSwipeRefreshLayout()
 
+        // Launch coroutine to handle data retrieval and display
         launch {
             try {
                 if (isNetworkAvailable()) {
+                    // Fetch weather data from the network
                     val weatherData = weatherRepository.getWeatherData()
                     displayWeatherData(weatherData)
                     saveWeatherDataToDatabase(weatherData)
@@ -63,10 +69,12 @@ class MainActivity : AppCompatActivity(), CoroutineScope by MainScope() {
                     if (localWeatherData != null) {
                         displayWeatherData(localWeatherData)
                     } else {
+                        // No data available locally, show error
                         showErrorView()
                     }
                 }
             } catch (e: Exception) {
+                // Handle exceptions during data retrieval
                 handleException(e)
             }
         }
@@ -94,9 +102,11 @@ class MainActivity : AppCompatActivity(), CoroutineScope by MainScope() {
     }
 
     private suspend fun retrieveWeatherDataFromDatabase(): WeatherData? = withContext(Dispatchers.IO) {
+        // Coroutine to retrieve weather data from the local database
         runCatching {
             val weatherEntities = weatherDao.getWeatherData()
             weatherEntities?.takeIf { it.isNotEmpty() }?.run {
+                // Map local database entities to WeatherData object
                 val weatherDataDetails = WeatherData.WeatherDataDetails(
                     timelines = listOf(
                         WeatherData.WeatherDataDetails.Timeline(
@@ -138,7 +148,7 @@ class MainActivity : AppCompatActivity(), CoroutineScope by MainScope() {
                     windSpeed = it.values.windSpeed
                 )
             }
-
+            // Launch coroutine to insert data into the local database
             launch {
                 weatherDao.insertWeatherData(weatherEntities)
             }
@@ -155,15 +165,16 @@ class MainActivity : AppCompatActivity(), CoroutineScope by MainScope() {
             customAdapter = object : ArrayAdapter<WeatherData.WeatherDataDetails.Timeline.Interval>(
                 this,
                 R.layout.custom_list_item,
-                // Your list of items to display (replace with your actual data)
                 data ?: emptyList()
             ) {
                 override fun getView(position: Int, convertView: View?, parent: ViewGroup): View {
                     val itemBinding: CustomListItemBinding
                     val view = if (convertView == null) {
+                        // Inflate the custom list item layout using ViewBinding
                         itemBinding = CustomListItemBinding.inflate(LayoutInflater.from(this@MainActivity), parent, false)
                         itemBinding.root
                     } else {
+                        // Reuse existing view
                         itemBinding = CustomListItemBinding.bind(convertView)
                         convertView
                     }
