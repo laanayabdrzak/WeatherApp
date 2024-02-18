@@ -1,5 +1,7 @@
 package com.laanayabdrzak.weatheapp
 
+import android.content.Context
+import android.net.ConnectivityManager
 import android.os.Bundle
 import android.view.View
 import android.widget.ArrayAdapter
@@ -14,8 +16,10 @@ import com.laanayabdrzak.weatheapp.data.local.WeatherEntity
 import com.laanayabdrzak.weatheapp.data.remote.WeatherData
 import com.laanayabdrzak.weatheapp.databinding.ActivityMainBinding
 import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.MainScope
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 
 class MainActivity : AppCompatActivity(), CoroutineScope by MainScope() {
 
@@ -45,8 +49,19 @@ class MainActivity : AppCompatActivity(), CoroutineScope by MainScope() {
 
         launch {
             try {
-                val weatherData = retrieveWeatherDataFromDatabase() ?: weatherRepository.getWeatherData()
-                displayWeatherData(weatherData)
+                if (isNetworkAvailable()) {
+                    val weatherData = weatherRepository.getWeatherData()
+                    displayWeatherData(weatherData)
+                    saveWeatherDataToDatabase(weatherData)
+                } else {
+                    // Device is offline, display data from the local database
+                    val localWeatherData = retrieveWeatherDataFromDatabase()
+                    if (localWeatherData != null) {
+                        displayWeatherData(localWeatherData)
+                    } else {
+                        showErrorView()
+                    }
+                }
             } catch (e: Exception) {
                 handleException(e)
             }
@@ -74,34 +89,37 @@ class MainActivity : AppCompatActivity(), CoroutineScope by MainScope() {
         }
     }
 
-    private suspend fun retrieveWeatherDataFromDatabase(): WeatherData? {
-        val weatherEntities = weatherDao.getWeatherData()
-        return if (weatherEntities.isNotEmpty()) {
-            val weatherDataDetails = WeatherData.WeatherDataDetails(
-                timelines = listOf(
-                    WeatherData.WeatherDataDetails.Timeline(
-                        timestep = "1h",
-                        startTime = "",  // Set a suitable startTime here
-                        endTime = "",
-                        intervals = weatherEntities.map {
-                            WeatherData.WeatherDataDetails.Timeline.Interval(
-                                startTime = "",
-                                values = WeatherData.WeatherDataDetails.Timeline.Interval.WeatherValues(
-                                    temperature = it.temperature,
-                                    temperatureApparent = it.temperatureApparent,
-                                    windSpeed = it.windSpeed
+    private suspend fun retrieveWeatherDataFromDatabase(): WeatherData? = withContext(Dispatchers.IO) {
+        runCatching {
+            val weatherEntities = weatherDao.getWeatherData()
+            weatherEntities?.takeIf { it.isNotEmpty() }?.run {
+                val weatherDataDetails = WeatherData.WeatherDataDetails(
+                    timelines = listOf(
+                        WeatherData.WeatherDataDetails.Timeline(
+                            timestep = "1h",
+                            startTime = "",  // Set a suitable startTime here
+                            endTime = "",
+                            intervals = weatherEntities.map {
+                                WeatherData.WeatherDataDetails.Timeline.Interval(
+                                    startTime = "",
+                                    values = WeatherData.WeatherDataDetails.Timeline.Interval.WeatherValues(
+                                        temperature = it.temperature,
+                                        temperatureApparent = it.temperatureApparent,
+                                        windSpeed = it.windSpeed
+                                    )
                                 )
-                            )
-                        }
+                            }
+                        )
                     )
                 )
-            )
-            WeatherData(data = weatherDataDetails, warnings = emptyList())
-        } else {
+                WeatherData(data = weatherDataDetails, warnings = emptyList())
+            }
+
+        }.getOrElse {
+            // Log or handle the exception if needed
             null
         }
     }
-
 
     private fun saveWeatherDataToDatabase(weatherData: WeatherData) {
         val intervals = weatherData.data.timelines
@@ -157,5 +175,11 @@ class MainActivity : AppCompatActivity(), CoroutineScope by MainScope() {
     private fun hideErrorView() {
         errorTextView.visibility = TextView.GONE
         swipeRefreshLayout.visibility = View.VISIBLE
+    }
+
+    private fun isNetworkAvailable(): Boolean {
+        val connectivityManager = getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
+        val networkInfo = connectivityManager.activeNetworkInfo
+        return networkInfo != null && networkInfo.isConnected
     }
 }

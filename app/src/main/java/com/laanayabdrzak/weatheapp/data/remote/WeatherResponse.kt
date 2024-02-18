@@ -28,9 +28,6 @@ data class WeatherData(
     }
 }
 
-
-
-
 data class Warning(
     val code: Int,
     val type: String,
