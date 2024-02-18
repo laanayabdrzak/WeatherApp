@@ -3,7 +3,9 @@ package com.laanayabdrzak.weatheapp
 import android.content.Context
 import android.net.ConnectivityManager
 import android.os.Bundle
+import android.view.LayoutInflater
 import android.view.View
+import android.view.ViewGroup
 import android.widget.ArrayAdapter
 import android.widget.ListView
 import android.widget.TextView
@@ -15,6 +17,7 @@ import com.laanayabdrzak.weatheapp.data.local.WeatherDatabase
 import com.laanayabdrzak.weatheapp.data.local.WeatherEntity
 import com.laanayabdrzak.weatheapp.data.remote.WeatherData
 import com.laanayabdrzak.weatheapp.databinding.ActivityMainBinding
+import com.laanayabdrzak.weatheapp.databinding.CustomListItemBinding
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.MainScope
@@ -27,6 +30,7 @@ class MainActivity : AppCompatActivity(), CoroutineScope by MainScope() {
     private lateinit var listView: ListView
     private lateinit var swipeRefreshLayout: SwipeRefreshLayout
     private lateinit var errorTextView: TextView
+    private lateinit var customAdapter: ArrayAdapter<WeatherData.WeatherDataDetails.Timeline.Interval>
 
     private lateinit var weatherDao: WeatherDao
     private val weatherRepository: WeatherRepository by lazy {
@@ -147,12 +151,34 @@ class MainActivity : AppCompatActivity(), CoroutineScope by MainScope() {
             ?.intervals
 
         if (!data.isNullOrEmpty()) {
-            val adapter = ArrayAdapter(this, android.R.layout.simple_list_item_1, data.map { interval ->
-                "Température: ${interval.values.temperature}\n" +
-                        "Température apparent: ${interval.values.temperatureApparent}\n" +
-                        "Vitesse du vent: ${interval.values.windSpeed}"
-            })
-            listView.adapter = adapter
+            // Use the custom layout file for each list item
+            customAdapter = object : ArrayAdapter<WeatherData.WeatherDataDetails.Timeline.Interval>(
+                this,
+                R.layout.custom_list_item,
+                // Your list of items to display (replace with your actual data)
+                data ?: emptyList()
+            ) {
+                override fun getView(position: Int, convertView: View?, parent: ViewGroup): View {
+                    val itemBinding: CustomListItemBinding
+                    val view = if (convertView == null) {
+                        itemBinding = CustomListItemBinding.inflate(LayoutInflater.from(this@MainActivity), parent, false)
+                        itemBinding.root
+                    } else {
+                        itemBinding = CustomListItemBinding.bind(convertView)
+                        convertView
+                    }
+
+                    // Set the values for each TextView using ViewBinding
+                    val interval = getItem(position)
+                    itemBinding.textTemperature.text = "Température: ${interval?.values?.temperature}"
+                    itemBinding.textTemperatureApparent.text = "Température apparent: ${interval?.values?.temperatureApparent}"
+                    itemBinding.textWindSpeed.text = "Vitesse du vent: ${interval?.values?.windSpeed}"
+
+                    return view
+                }
+            }
+
+            listView.adapter = customAdapter
             hideErrorView()
             saveWeatherDataToDatabase(weatherData)
         } else {
