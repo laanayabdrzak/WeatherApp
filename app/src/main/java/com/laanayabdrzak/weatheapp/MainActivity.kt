@@ -24,8 +24,10 @@ class MainActivity : AppCompatActivity(), CoroutineScope by MainScope() {
     private lateinit var swipeRefreshLayout: SwipeRefreshLayout
     private lateinit var errorTextView: TextView
 
-    private val weatherRepository = WeatherRepository()
     private lateinit var weatherDao: WeatherDao
+    private val weatherRepository: WeatherRepository by lazy {
+        WeatherRepository()
+    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
