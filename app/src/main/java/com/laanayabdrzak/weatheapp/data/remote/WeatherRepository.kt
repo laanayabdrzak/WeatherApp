@@ -1,4 +1,4 @@
-package com.laanayabdrzak.weatheapp
+package com.laanayabdrzak.weatheapp.data.remote
 
 import com.laanayabdrzak.weatheapp.data.remote.WeatherData
 import com.laanayabdrzak.weatheapp.network.RetrofitClient

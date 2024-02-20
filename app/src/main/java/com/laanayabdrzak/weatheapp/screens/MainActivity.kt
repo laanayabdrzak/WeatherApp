@@ -1,4 +1,4 @@
-package com.laanayabdrzak.weatheapp
+package com.laanayabdrzak.weatheapp.screens
 
 import android.content.Context
 import android.net.ConnectivityManager
@@ -9,9 +9,12 @@ import android.view.ViewGroup
 import android.widget.ArrayAdapter
 import android.widget.ListView
 import android.widget.TextView
+import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.room.Room
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout
+import com.laanayabdrzak.weatheapp.R
+import com.laanayabdrzak.weatheapp.data.remote.WeatherRepository
 import com.laanayabdrzak.weatheapp.data.local.WeatherDao
 import com.laanayabdrzak.weatheapp.data.local.WeatherDatabase
 import com.laanayabdrzak.weatheapp.data.local.WeatherEntity
@@ -77,6 +80,13 @@ class MainActivity : AppCompatActivity(), CoroutineScope by MainScope() {
                 // Handle exceptions during data retrieval
                 handleException(e)
             }
+        }
+
+        // Setup ListView item click listener
+        listView.setOnItemClickListener { _, _, position, _ ->
+            val selectedItem = customAdapter.getItem(position)
+            // Handle the click event for the selected item
+            Toast.makeText(this, "Clicked on: ${selectedItem?.values?.temperature}", Toast.LENGTH_SHORT).show()
         }
     }
 
