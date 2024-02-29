@@ -1,5 +1,6 @@
 package com.laanayabdrzak.weatheapp.data.remote
 
+import com.laanayabdrzak.weatheapp.data.model.WeatherData
 import com.laanayabdrzak.weatheapp.network.ApiInterface
 import retrofit2.Response
 import java.io.IOException

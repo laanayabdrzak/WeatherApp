@@ -1,6 +1,6 @@
 package com.laanayabdrzak.weatheapp.network
 
-import com.laanayabdrzak.weatheapp.data.remote.WeatherData
+import com.laanayabdrzak.weatheapp.data.model.WeatherData
 import retrofit2.Response
 import retrofit2.http.GET
 

@@ -1,6 +1,6 @@
 package com.laanayabdrzak.weatheapp
 
-import com.laanayabdrzak.weatheapp.data.remote.WeatherData
+import com.laanayabdrzak.weatheapp.data.model.WeatherData
 import com.laanayabdrzak.weatheapp.data.remote.WeatherRepository
 import com.laanayabdrzak.weatheapp.network.ApiInterface
 import com.laanayabdrzak.weatheapp.network.RetrofitClient

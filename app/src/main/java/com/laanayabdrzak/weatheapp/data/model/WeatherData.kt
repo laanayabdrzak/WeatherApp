@@ -1,4 +1,4 @@
-package com.laanayabdrzak.weatheapp.data.remote
+package com.laanayabdrzak.weatheapp.data.model
 
 
 data class WeatherData(

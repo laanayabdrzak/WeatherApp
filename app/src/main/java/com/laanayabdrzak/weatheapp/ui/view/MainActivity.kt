@@ -1,4 +1,4 @@
-package com.laanayabdrzak.weatheapp.screens
+package com.laanayabdrzak.weatheapp.ui.view
 
 import android.os.Bundle
 import android.view.View
@@ -9,6 +9,9 @@ import com.laanayabdrzak.weatheapp.data.local.WeatherDatabase
 import com.laanayabdrzak.weatheapp.data.remote.WeatherRepository
 import com.laanayabdrzak.weatheapp.databinding.ActivityMainBinding
 import com.laanayabdrzak.weatheapp.network.RetrofitClient
+import com.laanayabdrzak.weatheapp.ui.viewmodel.WeatherViewModel
+import com.laanayabdrzak.weatheapp.ui.viewmodel.WeatherViewModelFactory
+import com.laanayabdrzak.weatheapp.ui.adapter.WeatherListAdapter
 
 class MainActivity : AppCompatActivity() {
 

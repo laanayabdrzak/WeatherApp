@@ -1,4 +1,4 @@
-package com.laanayabdrzak.weatheapp.screens
+package com.laanayabdrzak.weatheapp.ui.viewmodel
 
 import android.content.Context
 import androidx.lifecycle.ViewModel

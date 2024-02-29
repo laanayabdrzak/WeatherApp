@@ -1,4 +1,4 @@
-package com.laanayabdrzak.weatheapp.screens
+package com.laanayabdrzak.weatheapp.ui.viewmodel
 
 import android.content.Context
 import android.net.ConnectivityManager
@@ -9,7 +9,7 @@ import androidx.lifecycle.viewModelScope
 import com.laanayabdrzak.weatheapp.data.local.WeatherDao
 import com.laanayabdrzak.weatheapp.data.local.WeatherEntity
 import com.laanayabdrzak.weatheapp.data.remote.WeatherRepository
-import com.laanayabdrzak.weatheapp.data.remote.WeatherData
+import com.laanayabdrzak.weatheapp.data.model.WeatherData
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext

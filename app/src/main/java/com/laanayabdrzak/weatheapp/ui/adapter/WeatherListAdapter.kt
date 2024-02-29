@@ -1,11 +1,11 @@
-package com.laanayabdrzak.weatheapp.screens
+package com.laanayabdrzak.weatheapp.ui.adapter
 
 import android.content.Context
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.ArrayAdapter
-import com.laanayabdrzak.weatheapp.data.remote.WeatherData
+import com.laanayabdrzak.weatheapp.data.model.WeatherData
 import com.laanayabdrzak.weatheapp.databinding.CustomListItemBinding
 
 class WeatherListAdapter(
