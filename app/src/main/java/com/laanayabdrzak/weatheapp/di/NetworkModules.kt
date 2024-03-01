@@ -1,6 +1,6 @@
 package com.laanayabdrzak.weatheapp.di
 
-import com.laanayabdrzak.weatheapp.network.ApiInterface
+import com.laanayabdrzak.weatheapp.network.ApiEndPoint
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -26,7 +26,7 @@ object NetworkModules {
 
     @Provides
     @Singleton
-    fun provideApiService(retrofit: Retrofit): ApiInterface {
-        return retrofit.create(ApiInterface::class.java)
+    fun provideApiService(retrofit: Retrofit): ApiEndPoint {
+        return retrofit.create(ApiEndPoint::class.java)
     }
 }

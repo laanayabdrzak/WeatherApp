@@ -1,14 +1,14 @@
 package com.laanayabdrzak.weatheapp.domain
 
 import com.laanayabdrzak.weatheapp.data.model.WeatherData
-import com.laanayabdrzak.weatheapp.network.ApiInterface
+import com.laanayabdrzak.weatheapp.network.ApiEndPoint
 import dagger.hilt.android.scopes.ViewModelScoped
 import retrofit2.Response
 import java.io.IOException
 import javax.inject.Inject
 
 @ViewModelScoped
-class WeatherRepository @Inject constructor(private val weatherApi: ApiInterface) {
+class WeatherRepository @Inject constructor(private val weatherApi: ApiEndPoint) {
 
     suspend fun getWeatherData(): WeatherData {
         return try {

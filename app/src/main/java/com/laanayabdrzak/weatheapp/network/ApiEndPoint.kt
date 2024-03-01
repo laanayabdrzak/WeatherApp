@@ -4,7 +4,7 @@ import com.laanayabdrzak.weatheapp.data.model.WeatherData
 import retrofit2.Response
 import retrofit2.http.GET
 
-interface ApiInterface {
+interface ApiEndPoint {
 
     @GET("weather")
     suspend fun getWeatherData(): Response<WeatherData>
