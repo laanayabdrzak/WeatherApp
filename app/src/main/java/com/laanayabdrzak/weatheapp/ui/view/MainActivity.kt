@@ -12,6 +12,7 @@ import com.laanayabdrzak.weatheapp.network.RetrofitClient
 import com.laanayabdrzak.weatheapp.ui.viewmodel.WeatherViewModel
 import com.laanayabdrzak.weatheapp.ui.viewmodel.WeatherViewModelFactory
 import com.laanayabdrzak.weatheapp.ui.adapter.WeatherListAdapter
+import com.laanayabdrzak.weatheapp.ui.viewmodel.WeatherDataState
 
 class MainActivity : AppCompatActivity() {
 
@@ -25,44 +26,49 @@ class MainActivity : AppCompatActivity() {
     }
     private val adapter: WeatherListAdapter by lazy { WeatherListAdapter(this) }
 
-
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
-        binding.listView.adapter = adapter
+        with(binding) {
+            listView.adapter = adapter
 
-        viewModel.weatherData.observe(this) { data ->
-            data?.let {
-                adapter.setData(it.data.timelines.firstOrNull()?.intervals ?: emptyList())
+            swipeRefreshLayout.setOnRefreshListener(viewModel::fetchWeatherData)
+        }
+
+        viewModel.weatherData.observe(this) { state ->
+            when (state) {
+                is WeatherDataState.Success -> {
+                    hideErrorView()
+                    adapter.setData(state.weatherData.data.timelines.firstOrNull()?.intervals ?: emptyList())
+                }
+                is WeatherDataState.Error -> {
+                    showErrorView(state.errorMessage)
+                }
+                is WeatherDataState.Loading -> {
+                    // Handle loading visibility
+                    binding.swipeRefreshLayout.isRefreshing = state.isLoading
+                }
             }
-        }
-
-        viewModel.error.observe(this) {
-            // Handle error visibility
-        }
-
-        viewModel.loading.observe(this) { isLoading ->
-            // Handle loading visibility
-            binding.swipeRefreshLayout.isRefreshing = isLoading
-        }
-
-        binding.swipeRefreshLayout.setOnRefreshListener {
-            viewModel.fetchWeatherData()
         }
 
         viewModel.fetchWeatherData()
     }
 
-    private fun showErrorView() {
-        binding.errorTextView.visibility = TextView.VISIBLE
-        binding.swipeRefreshLayout.visibility = View.GONE
+    private fun showErrorView(errorMessage: String) {
+        with(binding) {
+            errorTextView.text = errorMessage
+            errorTextView.visibility = TextView.VISIBLE
+            swipeRefreshLayout.visibility = View.GONE
+        }
     }
 
     private fun hideErrorView() {
-        binding.errorTextView.visibility = TextView.GONE
-        binding.swipeRefreshLayout.visibility = View.VISIBLE
+        with(binding) {
+            errorTextView.visibility = TextView.GONE
+            swipeRefreshLayout.visibility = View.VISIBLE
+        }
     }
 }

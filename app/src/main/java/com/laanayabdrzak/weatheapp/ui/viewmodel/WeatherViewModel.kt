@@ -2,6 +2,7 @@ package com.laanayabdrzak.weatheapp.ui.viewmodel
 
 import android.content.Context
 import android.net.ConnectivityManager
+import android.net.NetworkCapabilities
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
@@ -19,8 +20,8 @@ class WeatherViewModel(private val repository: WeatherRepository,
                        private val weatherDao: WeatherDao,
                        private val context: Context) : ViewModel() {
 
-    private var _weatherData = MutableLiveData<WeatherData>()
-    val weatherData: LiveData<WeatherData> get() = _weatherData
+    private var _weatherData = MutableLiveData<WeatherDataState>()
+    val weatherData: LiveData<WeatherDataState> get() = _weatherData
 
     private var _error = MutableLiveData<String>()
     val error: LiveData<String> get() = _error
@@ -30,24 +31,24 @@ class WeatherViewModel(private val repository: WeatherRepository,
 
     fun fetchWeatherData() {
         viewModelScope.launch {
-            _loading.value = true
+            _weatherData.value = WeatherDataState.Loading(true)
             try {
                 if (isNetworkAvailable()) {
                     val data = repository.getWeatherData()
-                    _weatherData.value = data
+                    _weatherData.value = WeatherDataState.Success(data)
                     saveWeatherDataToDatabase(data)
                 } else {
                     val localData = retrieveWeatherDataFromDatabase()
                     if (localData != null) {
-                        _weatherData.value = localData!!
+                        _weatherData.value = WeatherDataState.Success(localData)
                     } else {
-                        _error.value = "No data retrieved"
+                        _weatherData.value = WeatherDataState.Error("No data retrieved")
                     }
                 }
             } catch (e: Exception) {
                 handleException(e)
             } finally {
-                _loading.value = false
+                _weatherData.value = WeatherDataState.Loading(false)
             }
         }
     }
@@ -110,7 +111,14 @@ class WeatherViewModel(private val repository: WeatherRepository,
     }
     private fun isNetworkAvailable(): Boolean {
         val connectivityManager = context.getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
-        val networkInfo = connectivityManager.activeNetworkInfo
-        return networkInfo != null && networkInfo.isConnected
+        val network = connectivityManager.activeNetwork
+        val capabilities = connectivityManager.getNetworkCapabilities(network)
+        return capabilities != null && capabilities.hasCapability(NetworkCapabilities.NET_CAPABILITY_INTERNET)
     }
+}
+
+sealed class WeatherDataState {
+    data class Success(val weatherData: WeatherData) : WeatherDataState()
+    data class Error(val errorMessage: String) : WeatherDataState()
+    data class Loading(val isLoading: Boolean) : WeatherDataState()
 }
