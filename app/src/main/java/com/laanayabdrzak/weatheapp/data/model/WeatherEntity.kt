@@ -1,4 +1,4 @@
-package com.laanayabdrzak.weatheapp.data.local
+package com.laanayabdrzak.weatheapp.data.model
 
 import androidx.room.Entity
 import androidx.room.PrimaryKey

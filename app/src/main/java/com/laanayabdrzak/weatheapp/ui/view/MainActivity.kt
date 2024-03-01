@@ -5,25 +5,17 @@ import android.view.View
 import android.widget.TextView
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
-import com.laanayabdrzak.weatheapp.data.local.WeatherDatabase
-import com.laanayabdrzak.weatheapp.data.remote.WeatherRepository
 import com.laanayabdrzak.weatheapp.databinding.ActivityMainBinding
-import com.laanayabdrzak.weatheapp.network.RetrofitClient
 import com.laanayabdrzak.weatheapp.ui.viewmodel.WeatherViewModel
-import com.laanayabdrzak.weatheapp.ui.viewmodel.WeatherViewModelFactory
 import com.laanayabdrzak.weatheapp.ui.adapter.WeatherListAdapter
 import com.laanayabdrzak.weatheapp.ui.viewmodel.WeatherDataState
+import dagger.hilt.android.AndroidEntryPoint
 
+@AndroidEntryPoint
 class MainActivity : AppCompatActivity() {
 
     private lateinit var binding: ActivityMainBinding
-    private val viewModel: WeatherViewModel by viewModels {
-        WeatherViewModelFactory(
-            WeatherRepository(RetrofitClient.weatherApiService),
-            WeatherDatabase.getInstance(this).weatherDao(),
-            applicationContext
-        )
-    }
+    private val viewModel: WeatherViewModel by viewModels()
     private val adapter: WeatherListAdapter by lazy { WeatherListAdapter(this) }
 
     override fun onCreate(savedInstanceState: Bundle?) {

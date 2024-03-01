@@ -8,17 +8,21 @@ import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.laanayabdrzak.weatheapp.data.local.WeatherDao
-import com.laanayabdrzak.weatheapp.data.local.WeatherEntity
-import com.laanayabdrzak.weatheapp.data.remote.WeatherRepository
+import com.laanayabdrzak.weatheapp.data.model.WeatherEntity
+import com.laanayabdrzak.weatheapp.domain.WeatherRepository
 import com.laanayabdrzak.weatheapp.data.model.WeatherData
+import dagger.hilt.android.lifecycle.HiltViewModel
+import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import java.io.IOException
+import javax.inject.Inject
 
-class WeatherViewModel(private val repository: WeatherRepository,
-                       private val weatherDao: WeatherDao,
-                       private val context: Context) : ViewModel() {
+@HiltViewModel
+class WeatherViewModel @Inject constructor(private val repository: WeatherRepository,
+                                           private val weatherDao: WeatherDao,
+                                           @ApplicationContext private val context: Context) : ViewModel() {
 
     private var _weatherData = MutableLiveData<WeatherDataState>()
     val weatherData: LiveData<WeatherDataState> get() = _weatherData
